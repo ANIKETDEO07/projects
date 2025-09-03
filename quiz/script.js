@@ -11,6 +11,7 @@ let score = 0;
 let timer;
 let timeLeft = 10;
 let answered = false;
+let autoNextTimeout; // to store auto next timeout
 
 // Start quiz
 function startQuiz() {
@@ -27,6 +28,12 @@ function showQuestion() {
   timeLeft = 10;
   updateTimer();
   timer = setInterval(countdown, 1000);
+
+  // Clear any previous autoNext timeout if exists
+  if (autoNextTimeout) {
+    clearTimeout(autoNextTimeout);
+    autoNextTimeout = null;
+  }
 
   const q = questions[currentQuestion];
   document.getElementById('question-number').innerText = `Question ${currentQuestion+1}/${questions.length}`;
@@ -51,6 +58,12 @@ function selectAnswer(selected, btn) {
   if(answered) return;
   answered = true;
   clearInterval(timer);
+
+  // Clear autoNext timeout so it doesn't conflict with manual answer
+  if (autoNextTimeout) {
+    clearTimeout(autoNextTimeout);
+    autoNextTimeout = null;
+  }
 
   const q = questions[currentQuestion];
   const optionBtns = document.querySelectorAll('#options button');
@@ -85,7 +98,7 @@ function countdown() {
   }
 }
 
-// Auto select wrong if time ends
+// Auto select wrong if time ends and auto advance next question after 2 seconds
 function autoSelect() {
   const q = questions[currentQuestion];
   const optionBtns = document.querySelectorAll('#options button');
@@ -93,7 +106,17 @@ function autoSelect() {
     if(idx === q.correct) button.classList.add('correct');
     button.disabled = true;
   });
-  document.getElementById('next-btn').disabled = false;
+  document.getElementById('next-btn').disabled = true; // disable next button during auto next delay
+
+  // Auto advance to next question after 2 seconds
+  autoNextTimeout = setTimeout(() => {
+    currentQuestion++;
+    if(currentQuestion < questions.length) {
+      showQuestion();
+    } else {
+      endQuiz();
+    }
+  }, 2000);
 }
 
 // Show result
