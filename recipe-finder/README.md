@@ -38,7 +38,4 @@ This project uses TheMealDB API endpoints:
 - Enable recipe sharing on social media  
 - Improve UI with enhanced animations and accessibility features  
 
-## License
-This project is open source and available under the MIT License.
 
-***
